@@ -21,3 +21,11 @@ app.post('/dangky', parser, (req, res) => {
 });
 
 app.get('/dangnhap', (req, res) => res.render('dangnhap'));
+app.post('/dangnhap', parser, (req, res) => {
+    const { email, password } = req.body;
+    const user = new User(email, password);
+    user.signIn(err => {
+        if (err) return res.send(err);
+        res.send('Dang nhap thanh cong');
+    });
+});
