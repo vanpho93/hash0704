@@ -2,6 +2,16 @@ const express = require('express');
 const session = require('express-session');
 const User = require('./model/User');
 
+const requireSignIn = (req, res, next) => {
+    if (!req.session.daDangNhap) return res.redirect('/public');
+    next();
+}
+
+const redirectIfSignedIn = (req, res, next) => {
+    if (req.session.daDangNhap) return res.redirect('/public');
+    next();
+}
+
 const parser = require('body-parser').urlencoded({ extended: false});
 const app = express();
 app.listen(3000, () => console.log('Server started'))
@@ -49,12 +59,3 @@ app.get('/private', requireSignIn, (req, res) => {
     res.send('PRIVATE ROUTE');
 });
 
-function requireSignIn(req, res, next) {
-    if (!req.session.daDangNhap) return res.redirect('/public');
-    next();
-}
-
-function redirectIfSignedIn(req, res, next) {
-    if (req.session.daDangNhap) return res.redirect('/public');
-    next();
-}
