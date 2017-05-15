@@ -15,8 +15,8 @@ class User {
             if (errHash) return cb(errHash);
             const sql = `INSERT INTO public."User"(
             email, password, name, phone)
-            VALUES ('${this.email}', '${encypted}', '${this.name}', '${this.phone}')`;
-            queryDB(sql, (err, result) => {
+            VALUES ($1, $2, $3, $4)`;
+            queryDB(sql, [this.email, this.password, this.name, this.phone], (err, result) => {
                 if (err) return cb(err);
                 return cb();
             });
@@ -24,8 +24,8 @@ class User {
     }
 
     signIn(cb) {
-        const sql = `SELECT * FROM "User" WHERE email = '${this.email}'`;
-        queryDB(sql, (err, result) => {
+        const sql = `SELECT * FROM "User" WHERE email = $1`;
+        queryDB(sql, [this.email], (err, result) => {
             if (err) return cb (err);
             if (result.rowCount === 0) return cb('EMAIL KHONG TON TAI');
             const encypted = result.rows[0].password;
@@ -35,7 +35,14 @@ class User {
                 cb();
             });
         });
-    } 
+    }
+
+    static getAllUser(cb) {
+      const sql = `SELECT * FROM "User"`;
+      queryDB(sql, [], (err, result) => {
+          cb(result.rows);
+      });
+    }
 }
 
 module.exports = User;

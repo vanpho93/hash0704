@@ -29,3 +29,7 @@ app.post('/dangnhap', parser, (req, res) => {
         res.send('Dang nhap thanh cong');
     });
 });
+
+app.get('/show', (req, res) => {
+  User.getAllUser(rows => res.send(rows));
+});
