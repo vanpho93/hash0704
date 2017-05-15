@@ -17,8 +17,8 @@ app.use(session({
 
 app.get('/', (req, res) => res.render('home'));
 
-app.get('/dangky', (req, res) => res.render('dangky'));
-app.post('/dangky', parser, (req, res) => {
+app.get('/dangky', redirectIfSignedIn, (req, res) => res.render('dangky'));
+app.post('/dangky', parser, redirectIfSignedIn, (req, res) => {
     const { email, password, name, phone } = req.body;
     const user = new User(email, password, name, phone);
     user.signUp(err => {
@@ -27,8 +27,11 @@ app.post('/dangky', parser, (req, res) => {
     });
 });
 
-app.get('/dangnhap', (req, res) => res.render('dangnhap'));
-app.post('/dangnhap', parser, (req, res) => {
+app.get('/dangnhap', redirectIfSignedIn, (req, res) => {
+    res.render('dangnhap');
+});
+
+app.post('/dangnhap', parser, redirectIfSignedIn, (req, res) => {
     const { email, password } = req.body;
     const user = new User(email, password);
     user.signIn(err => {
@@ -42,9 +45,16 @@ app.get('/public', (req, res) => {
     res.send('PUBLIC ROUTE');
 });
 
-app.get('/private', (req, res) => {
-    if (req.session.daDangNhap) {
-        return res.send('PRIVATE ROUTE')
-    }
-    res.redirect('/public');
+app.get('/private', requireSignIn, (req, res) => {
+    res.send('PRIVATE ROUTE');
 });
+
+function requireSignIn(req, res, next) {
+    if (!req.session.daDangNhap) return res.redirect('/public');
+    next();
+}
+
+function redirectIfSignedIn(req, res, next) {
+    if (req.session.daDangNhap) return res.redirect('/public');
+    next();
+}
